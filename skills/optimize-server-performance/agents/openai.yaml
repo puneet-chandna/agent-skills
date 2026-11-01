@@ -1,0 +1,15 @@
+interface:
+  display_name: Optimize Server Performance
+  short_description: Tune, optimize, or rebuild with measured performance
+  default_prompt: 'Use $optimize-server-performance in Mode 1 (Tune) on this repository:
+    profile bottlenecks, implement small fixes, and verify correctness and performance
+    before and after.'
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
