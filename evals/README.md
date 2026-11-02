@@ -63,7 +63,10 @@ workaround. Keep executable correctness tests available in every condition.
 
 Locally inspected on 2026-11-02: `codex-cli 0.163.0`, `claude 2.1.251`.
 `codex --version`, `codex --help`, `codex exec --help`, `claude --version` and
-`claude --help` were executed. The flags below occur in those help outputs.
+`claude --help` were executed. The flags below occur in those help outputs. Full command prefixes were also
+parsed with `--help`, without invoking a model. An initial attempt placing
+Codex `--ask-for-approval` after `exec` was rejected; the corrected command
+places this global option before `exec`.
 **No model invocation, authentication test or isolated CLI end-to-end run was
 performed.** Recheck help on the evaluation machine. In particular Claude's
 `--bare` still resolves skills and is not an isolation boundary.
@@ -73,8 +76,8 @@ A/B/C. In the isolated machine, create `/outputs` and run one of:
 
 ```bash
 cd /workspace/task
-timeout 3600s codex --no-daemon exec --ignore-user-config --ignore-rules \
-  --ephemeral --sandbox workspace-write --ask-for-approval never \
+timeout 3600s codex --no-daemon --ask-for-approval never exec --ignore-user-config --ignore-rules \
+  --ephemeral --sandbox workspace-write \
   --model "$EVAL_MODEL" --json - < /inputs/prompt.txt \
   > /outputs/trace.jsonl 2> /outputs/stderr.txt
 ```
@@ -82,7 +85,8 @@ timeout 3600s codex --no-daemon exec --ignore-user-config --ignore-rules \
 ```bash
 cd /workspace/task
 timeout 3600s claude --bare --setting-sources '' --strict-mcp-config \
-  --tools 'Bash,Read,Write,Edit,Glob,Grep' --permission-mode acceptEdits \
+  --tools 'Bash,Read,Write,Edit,Glob,Grep' \
+  --allowedTools 'Bash,Read,Write,Edit,Glob,Grep' --permission-mode acceptEdits \
   --model "$EVAL_MODEL" --print --verbose --output-format stream-json \
   --no-session-persistence < /inputs/prompt.txt \
   > /outputs/trace.jsonl 2> /outputs/stderr.txt
@@ -129,6 +133,12 @@ both. The preparer accepts `--rows 16` or `--rows 100000` for these strata.
 Hidden grader checks must be fixed before the study and outside the task mount.
 Run the repository's fixture oracle on the exported candidate after the run;
 do not disclose reference implementations to the agent.
+
+On the evaluator host, with the agent stopped, execute the staged hidden checks:
+
+```bash
+EVAL_EXPORTED_TASK=/path/to/exported/task python3 /path/to/control/test_contract.py -v
+```
 
 Copy [results-template.json](results-template.json). For each trial add scenario,
 condition, stratum, input/skill hashes, CLI/model/settings/budget/environment,
