@@ -1,0 +1,17 @@
+{
+  "frozen_before_candidate_measurements": true,
+  "primary_metric": "server process CPU milliseconds per semantically successful request",
+  "minimum_reduction_percent": 8,
+  "variation_rule": "median paired CPU reduction must exceed both 8 percent and the observed baseline CPU/request relative range; otherwise inconclusive, collect more evidence",
+  "provisional_regression_budgets": {
+    "correctness_failures": 0,
+    "error_rate": 0,
+    "p95_and_p99_increase_percent": 25,
+    "server_peak_rss_increase_mib": 16
+  },
+  "scope": "Synthetic loopback read-only feed; provisional experimental budgets, no product SLO or capacity guarantee",
+  "screen": "3 alternating pairs, 2 seconds each, 0.5 second warmup, 2 workers, aggregate pacing ceiling 40 requests/s, 12000 rows, limit 1000, seed 17",
+  "mode2_confirmation": "300 second target hold per version, same configuration; 0/16/12000/100000 rows and tied-score skew screening",
+  "mode3_if_justified": "Brief before implementation; 5 pairs per light/target/near-saturation regime and relevant sizes/skew; 300 second hold per version; at least 900 second finalist soak; integration, faults, resource and recovery checks",
+  "rollback": "Choose preceding retained implementation and regenerate its disposable database; originals remain separate modules"
+}
