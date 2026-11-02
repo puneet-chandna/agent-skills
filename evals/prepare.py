@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -28,6 +29,13 @@ sleeps, stale response caches, weaken checks or access live services/data.
 Create your own useful correctness checks. bench.py supports matched local
 experiments; start by comparing baseline against itself. No precomputed results
 are supplied. Keep artifacts in this task. Report limitations and uncertainty.
+
+Before completion, write candidate.json with {"implementation":"MODULE_NAME"}.
+Select a Python module in this directory, including baseline if you retain it.
+The hidden grader imports that module and starts app.make_server(database,
+implementation=MODULE_NAME), including its setup. Preserve this test entry point
+when rebuilding internals. A missing or null selection fails grading. Statements
+in the final message do not override this output manifest.
 '''
 
 
@@ -52,6 +60,15 @@ def prepare(out, condition, scenario, revision=None, rows=None):
         (task / 'bench.py').write_text(text)
     count = rows if rows is not None else (100000 if scenario == 'mode3' else 12000)
     (task / 'README.md').write_text(CONTRACT + f'\nUse rows={count}, seed=17 for the target dataset.\n')
+    (task / 'candidate.json').write_text('{"implementation":null}\n')
+    git_env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    git_env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1')
+    subprocess.run(['git', 'init', '--quiet', '--initial-branch=main', '--template=', str(task)],
+                   env=git_env, check=True)
+    subprocess.run(['git', '-C', str(task), 'add', '--', '.'], env=git_env, check=True)
+    subprocess.run(['git', '-C', str(task), '-c', 'user.name=Fixture setup',
+                    '-c', 'user.email=fixture@localhost', '-c', 'core.hooksPath=/dev/null',
+                    'commit', '--quiet', '-m', 'Initial sanitized fixture'], env=git_env, check=True)
     guide_revision = BASELINE if condition == 'B' else revision
     if condition != 'A':
         if not guide_revision:
@@ -71,17 +88,17 @@ def prepare(out, condition, scenario, revision=None, rows=None):
     (control / 'prompt.txt').write_text(prompt)
     shutil.copyfile(ROOT / 'evals/audit.py', control / 'audit.py')
     # This hidden oracle is kept on the evaluator host, never in the agent mount.
-    grader = (ROOT / 'tests/test_slow_api.py').read_text()
-    grader = grader.replace("EXAMPLE = Path(__file__).resolve().parents[1] / 'examples' / 'slow-api'",
-                            "EXAMPLE = Path(__import__('os').environ['EVAL_EXPORTED_TASK'])")
-    grader = grader.replace("VARIANTS = ('baseline', 'tune', 'optimize', 'rebuild')", "VARIANTS = ('baseline',)")
-    grader = grader.replace('\nimport data\n', '\nimport trusted_data as data\n')
-    (control / 'test_contract.py').write_text(grader)
+    shutil.copyfile(ROOT / 'tests/test_slow_api.py', control / 'test_contract.py')
     shutil.copyfile(fixture / 'data.py', control / 'trusted_data.py')
     manifest = dict(condition=condition, scenario=scenario, rows=count, seed=17,
                     skill_revision=guide_revision if condition != 'A' else None,
+                    candidate_entry_point={'manifest': 'candidate.json', 'key': 'implementation',
+                                           'factory': 'app.make_server(database, implementation)'},
+                    fixture_commit=subprocess.check_output(['git', '-C', str(task),
+                        'rev-parse', 'HEAD'], text=True).strip(),
                     files={str(p.relative_to(out)): hashlib.sha256(p.read_bytes()).hexdigest()
-                           for p in sorted(out.rglob('*')) if p.is_file()})
+                           for p in sorted(out.rglob('*')) if p.is_file()
+                           and '.git' not in p.relative_to(out).parts})
     (control / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return manifest
 

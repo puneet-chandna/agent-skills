@@ -2,8 +2,10 @@
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 import http.client
+import hashlib
 import importlib
 import json
+import os
 from pathlib import Path
 import sqlite3
 import sys
@@ -11,12 +13,25 @@ import tempfile
 import threading
 import unittest
 
-EXAMPLE = Path(__file__).resolve().parents[1] / 'examples' / 'slow-api'
+EXPORTED = os.environ.get('EVAL_EXPORTED_TASK')
+EXAMPLE = Path(EXPORTED).resolve() if EXPORTED else Path(__file__).resolve().parents[1] / 'examples' / 'slow-api'
 sys.path.insert(0, str(EXAMPLE))
 import app
-import data
+data = importlib.import_module('trusted_data' if EXPORTED else 'data')
 
 VARIANTS = ('baseline', 'tune', 'optimize', 'rebuild')
+if EXPORTED:
+    Path(__file__).with_name('graded-candidate.json').unlink(missing_ok=True)
+    selected = json.loads((EXAMPLE / 'candidate.json').read_text())['implementation']
+    if (not isinstance(selected, str) or not selected.isidentifier()
+            or not (EXAMPLE / (selected + '.py')).is_file()):
+        raise ValueError('candidate.json must select a local implementation module')
+    VARIANTS = (selected,)
+    manifest = {'implementation': selected, 'factory': 'app.make_server(database, implementation)',
+                'sources': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                            for p in EXAMPLE.glob('*.py')},
+                'selection_sha256': hashlib.sha256((EXAMPLE / 'candidate.json').read_bytes()).hexdigest()}
+    Path(__file__).with_name('graded-candidate.json').write_text(json.dumps(manifest, indent=2) + '\n')
 
 
 def oracle(path, limit):
@@ -47,10 +62,12 @@ class FixtureTests(unittest.TestCase):
                               b'{"id":2,"score":2,"title":"duplicate","selected":true},'
                               b'{"id":3,"score":1,"title":"duplicate","selected":false}]}')
                 for limit in (0, 2, 1000, 10000):
-                    rows, selected = app.read(path, limit)
                     expected = oracle(path, limit)
                     for variant in VARIANTS:
-                        body, length = importlib.import_module(variant).render(rows, selected)
+                        implementation = importlib.import_module(variant)
+                        if hasattr(implementation, 'prepare'):
+                            implementation.prepare(path)
+                        body, length = implementation.render(*app.read(path, limit))
                         self.assertEqual(length, len(body))
                         self.assertEqual(json.loads(body), expected)
                         if size == 3 and limit >= 3:
