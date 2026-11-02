@@ -83,7 +83,7 @@ Official scores, local measurements and projections stay separate. Installation 
 
 ## Example
 
-The [stdlib HTTP/SQLite fixture](examples/slow-api/README.md) includes a [journal](examples/slow-api/journal.md) and [raw trials](examples/slow-api/results/). Local loopback tests on Python 3.14.4 / SQLite 3.46.1, an i5-1235U and seeded feed data left Tune and Optimize inconclusive; Rebuild's ordering index failed the workload matrix. The original is retained, with no accepted speedup. This synthetic example does not predict gains elsewhere.
+The [stdlib HTTP/SQLite fixture](examples/slow-api/README.md) includes a [results table](examples/slow-api/RESULTS.md) and [provenance manifest](examples/slow-api/evidence.json). No speedup is accepted. Raw evidence is archived locally and remains unpublished. This synthetic example does not predict gains elsewhere.
 
 [Agent evaluation instructions](evals/README.md) prepare isolated no-skill/current/revised comparisons. These evaluations have not run; behavioral improvement remains unmeasured.
 

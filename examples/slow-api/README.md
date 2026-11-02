@@ -1,98 +1,90 @@
 # Slow API educational fixture
 
-Local stdlib Python HTTP/SQLite fixture, not production server code or a
-reproduction of the $12 Server Challenge environment. Binds to `127.0.0.1`.
-There are no third-party dependencies, artificial sleeps or weakened responses.
+This stdlib Python HTTP/SQLite fixture binds to loopback. It is not production
+server code or a reproduction of the $12 Server Challenge environment. It uses
+no artificial sleeps. See [results](RESULTS.md) and [provenance](evidence.json).
 
-## API and candidates
+## Contract and experiments
 
-`GET /feed?limit=1000` returns `{"items":[...]}` in descending score and ascending
-id order, with `id`, `score`, `title`, and boolean `selected` fields. Limit is
-0..10000 (default 1000); invalid/duplicate/unknown parameters return JSON 400.
-Unknown paths return JSON 404; POST returns JSON 405 and closes the connection.
-SQLite errors return JSON 503. Content length counts UTF-8 bytes. Each request
-owns/closes a SQLite connection and reads both tables in a transaction snapshot.
-Committed external edits become visible on the next request. There is no write
-API, auth, TLS or proxy. Existing infrastructure is deliberately simple.
+GET /feed returns at most 1000 items, ordered by score descending, then id
+ascending. Each item has id, score, title and selected. The limit parameter
+accepts one ASCII decimal value from 0 to 10000. Duplicate selection rows must
+not duplicate output. Preserve Unicode, compact UTF-8 JSON and byte content
+length. Invalid queries return JSON 400; unknown paths return JSON 404; POST
+returns JSON 405 and closes the connection; database errors return JSON 503.
 
-- `baseline.py`: original repeated list membership and two JSON encodes.
-- `tune.py`: Mode 1 candidate, one encode; no algorithm change. Inconclusive in
-  local trials, so it is not the predecessor for Mode 2.
-- `optimize.py`: Mode 2 candidate, request-local set including build cost;
-  otherwise the original baseline, including its two encodes.
-- `rebuild.py`: Mode 3 candidate, one persistent ordering index with atomic
-  setup and drop-index rollback; original rendering unchanged.
+Each request owns its SQLite connection. It closes the connection after reading
+both tables in one transaction snapshot. The next request sees committed external
+writes. There is no write API, authentication, TLS or proxy responsibility.
 
-No N+1 hypothesis is used. The application executes BEGIN and two SELECTs,
-followed by COMMIT. Python sqlite3's statement cache is unchanged. The measured
-query-plan sort is a separate Mode 3 experiment; see the
-[brief](mode3-brief.md) and [journal](journal.md) for decisions and validation.
+- baseline.py keeps linear membership and duplicate serialization.
+- tune.py removes one serialization. It changes no algorithm or infrastructure.
+- optimize.py builds a request-local membership set. Construction cost is included.
+  It uses baseline.py because Tune has no accepted winner.
+- rebuild.py adds a persistent ordering index to the original baseline. Under
+  this skill's budgets, an index change is Mode 3. It changes no rendering code.
+
+The Mode 3 hypothesis comes from the measured scan and temporary ordering
+B-tree. An index can remove repeated sorting. A response cache would violate
+external-write freshness. A transport rewrite would not remove the measured
+sort. Preserve SQLite transactions and external-write maintenance. Setup is
+atomic and idempotent; rollback drops feed_order. Tests cover failed setup,
+SQLITE_FULL, concurrent reads, fresh writes, integrity, recovery and rollback.
+The full original experiment brief is preserved in the local evidence archive.
 
 ## Reproduce
 
-From the repository root:
+From the repository root, use fresh output paths outside the repository:
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 examples/slow-api/profile_app.py --out /tmp/profile.json
-python3 examples/slow-api/bench.py --out /tmp/mode1.json
-python3 examples/slow-api/bench.py --baseline baseline --candidate optimize --out /tmp/mode2.json
-python3 examples/slow-api/bench.py --baseline baseline --candidate rebuild --rounds 5 --out /tmp/mode3.json
+python3 examples/slow-api/profile_app.py --out /tmp/slow-profile.json
+python3 examples/slow-api/bench.py --candidate tune --out /tmp/slow-mode1.json
+python3 examples/slow-api/bench.py --candidate optimize --out /tmp/slow-mode2.json
+python3 examples/slow-api/bench.py --candidate rebuild --rounds 5 --out /tmp/slow-mode3.json
+python3 examples/slow-api/bench.py --candidate rebuild --rounds 5 \
+  --concurrency 4 --rate 0 --out /tmp/slow-pressure.json
 ```
 
-Use a new output path each time; existing evidence is never overwritten. Each
-trial seeds a temporary database, warms a fresh server, runs and drains the
-workload, then stops the process and removes the database. No services remain.
-For manual inspection, from `examples/slow-api`:
+The runner refuses existing output paths. Every trial creates a deterministic
+temporary database, starts a server, warms it, measures and drains work, then
+stops the server and removes the database. The [protocol](protocol.json) freezes
+metrics and provisional budgets. Screen first. If every screen gate passes,
+apply the selected mode's full validation ladder. For serving changes in Mode 2
+or Mode 3, run a 300-second hold per version. For a Mode 3 finalist, also run a
+single 900-second candidate soak with --single. Extend for relevant lifecycle
+cycles. No finalist was selected in the recorded screens. Ordinary CI runs no
+holds, soaks or speed assertions.
 
-```bash
-python3 -c 'import data; data.seed("/tmp/slow-feed.db")'
-python3 app.py /tmp/slow-feed.db --implementation baseline --port 8000
-```
+## Measurement boundaries
 
-The paired runner alternates AB/BA order, with three pairs by default. The
-[frozen protocol](protocol.json) defines the primary CPU/request metric and
-provisional budgets, screening and finalist requirements. Examples of sustained
-commands, when a candidate merits them:
+The client is closed-loop with one outstanding request per worker. Optional
+pacing sets a ceiling; missed opportunities are not replayed. Equal concurrency
+and pacing do not guarantee equal open-loop arrivals. Throughput uses the full
+admission window plus drain. Successful-response percentiles use nearest rank
+ceil(p*N)-1, including full body reading and hashing. Raw failures, timeouts,
+unfinished work and warmups are preserved separately. Never average percentiles.
 
-```bash
-python3 examples/slow-api/bench.py --baseline baseline --candidate optimize \
-  --rounds 1 --duration 300 --warmup 2 --out /tmp/mode2-hold.json
-```
+Memory observations come from the server's Linux smaps_rollup Rss. Snapshots run
+after startup, after warmup, every ten seconds during measurement and after
+drain. Their maximum is a sampled lower bound. Startup and warmup transients,
+and peaks between samples, can be missed. Sampling cost is recorded per trial;
+periodic sampling CPU remains included. Other platforms or unreadable procfs
+return unavailable values. No platform reports a certified true peak here, so
+the peak-memory gate stays UNVERIFIED even when sampled values are small.
+The recorded sampling-read cost was 1.28 to 2.58 ms per trial. Its full observer
+effect was not isolated with an uninstrumented control. To verify the memory
+gate, collect separate validated evidence for true peak memory.
 
-For a future Mode 3 finalist, run the five-minute holds with the appropriate
-predecessor/candidate and then a single fifteen-minute candidate soak:
+[Linux documentation](https://man7.org/linux/man-pages/man5/proc_pid_statm.5.html)
+recommends smaps or smaps_rollup for accurate resident-memory observations.
+[VmHWM](https://man7.org/linux/man-pages/man5/proc_pid_status.5.html) is approximate
+and is retained only as a diagnostic. Historical ru_maxrss results can inherit
+parent high water. Their RSS conclusions are unreliable. This does not by itself
+invalidate independent CPU or latency measurements.
 
-```bash
-python3 examples/slow-api/bench.py --baseline baseline --candidate rebuild \
-  --rounds 1 --duration 300 --warmup 2 --out /tmp/mode3-hold.json
-python3 examples/slow-api/bench.py --candidate rebuild --single \
-  --rounds 1 --duration 900 --warmup 2 --out /tmp/mode3-soak.json
-```
-
-These sustained commands were not run here because screening selected no finalist.
-
-Do not put holds, soaks or speed assertions into unit tests or CI. A passing
-runner command creates evidence; it does not automatically accept a candidate.
-
-## Measurement limits
-
-One outstanding request per worker, optionally paced to an aggregate ceiling.
-There are no catch-up arrivals. Same concurrency and pacing policy do not imply
-identical open-loop offered arrivals. Throughput uses the full admission window
-plus drain. Percentiles use nearest rank `ceil(p*N)-1` over **successful** full
-responses, including body reading/hashing; failures remain separate. Never
-average run percentiles. Raw samples include start offsets, durations and
-outcomes; warmup samples are separate. No automatic retries hide errors.
-
-Raw JSON in [results/](results/) includes commands, timestamps, source hashes,
-seed/checksum, Python/SQLite/OS/CPU data, limits or explicit unknown values,
-warmup/duration/concurrency/reuse/timeout/reset policy and CPU/RSS summaries.
-Generator CPU and missed pacing opportunities are reported. The server and
-generator share this host; CPU quota isolation and kernel/cgroup accounting may
-be unavailable. Process lifetime peak RSS is not a leak test. Loopback results
-cannot establish production capacity, open-loop latency or gains on other data.
-
-The fixture's hand-written results are application experiments. Instruction
-regression tests are packaging checks. [Agent evaluations](../../evals/README.md)
-are prepared but unrun; behavioral improvement remains unmeasured.
+Raw trials, profiles, logs and source snapshots are in a local unpublished
+archive. The manifest names the archive and its checksum. Its internal
+MANIFEST.json lists per-file checksums. There is no public download URL.
+Untracking evidence does not erase previous Git commits. [Agent evaluation
+preparation](../../evals/README.md) is separate; no agent trials have run.

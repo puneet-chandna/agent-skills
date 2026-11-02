@@ -2,3 +2,10 @@ __pycache__/
 *.py[cod]
 .venv/
 .DS_Store
+
+# Generated evidence belongs outside the public source tree.
+/examples/slow-api/results/
+/examples/slow-api/*.db*
+/docs/performance/
+/evals/runs/
+/evidence/

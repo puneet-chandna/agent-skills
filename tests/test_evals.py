@@ -55,6 +55,7 @@ class EvaluationPackagingTests(unittest.TestCase):
             out = root / 'missing'
             prepare.prepare(out, 'A', 'missing-measurement')
             self.assertFalse((out / 'task/bench.py').exists())
+            self.assertNotIn('bench.py supports', (out / 'task/README.md').read_text())
 
     def test_grades_selected_candidate_including_setup_and_rejects_wrong_one(self):
         prepare = load('prepare')

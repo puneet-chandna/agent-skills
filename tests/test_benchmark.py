@@ -1,5 +1,6 @@
 """Fast accounting/artifact tests. No speed gates or sustained performance runs."""
 import http.server
+import hashlib
 import json
 from pathlib import Path
 import socket
@@ -15,6 +16,19 @@ import bench
 
 
 class BenchmarkTests(unittest.TestCase):
+    def test_recorded_measurement_source_resolves_to_committed_bytes(self):
+        evidence = json.loads((EXAMPLE / 'evidence.json').read_text())
+        revision = evidence['source_revision']
+        for name, digest in evidence['source_sha256'].items():
+            content = subprocess.check_output(['git', 'show',
+                revision + ':examples/slow-api/' + name], cwd=EXAMPLE)
+            self.assertEqual(hashlib.sha256(content).hexdigest(), digest)
+        protocol = subprocess.check_output(['git', 'show',
+            revision + ':examples/slow-api/protocol.json'], cwd=EXAMPLE)
+        self.assertEqual(hashlib.sha256(protocol).hexdigest(), evidence['protocol_sha256'])
+        self.assertEqual(evidence['source_status'], '')
+        self.assertEqual(evidence['availability'], 'local_unpublished')
+
     def test_accounting_and_percentiles(self):
         samples = [[0, 1000, 200], [1, 3000, 200], [2, 2000, 503],
                    [3, 5000, 'timeout'], [4, 4000, 'transport'], [5, 6000, 'semantic']]

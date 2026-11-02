@@ -59,7 +59,11 @@ def prepare(out, condition, scenario, revision=None, rows=None):
                             "parser.add_argument('--candidate', default='baseline')")
         (task / 'bench.py').write_text(text)
     count = rows if rows is not None else (100000 if scenario == 'mode3' else 12000)
-    (task / 'README.md').write_text(CONTRACT + f'\nUse rows={count}, seed=17 for the target dataset.\n')
+    contract = CONTRACT
+    if scenario == 'missing-measurement':
+        contract = contract.replace('bench.py supports matched local\nexperiments; start by comparing baseline against itself.',
+                                    'Trustworthy performance measurement is unavailable for this task.')
+    (task / 'README.md').write_text(contract + f'\nUse rows={count}, seed=17 for the target dataset.\n')
     (task / 'candidate.json').write_text('{"implementation":null}\n')
     git_env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
     git_env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1')
