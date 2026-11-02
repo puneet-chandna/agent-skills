@@ -5,40 +5,44 @@ description: Profile and improve backend, HTTP server, database, networking and 
 
 # Optimize Server Performance
 
-Default to Mode 1 for unspecified requests, including “make it faster.” State mode and production/challenge context. Never silently escalate, including subtasks. A mode is a ceiling, not a rewrite requirement. Narrower user constraints prevail.
+For unspecified requests, default to Mode 1. This includes “make it faster.” State the selected mode. State whether the context is production or a challenge. Never silently escalate, including subtasks. A mode is a ceiling, not a rewrite requirement. Narrower user constraints prevail.
 
-| Mode | Allowed changes | Preserve |
+| Mode | Permitted changes | Required boundaries |
 |---|---|---|
-| **1 Tune** | Remove redundant work/copies; reuse resources; tune existing queries/pools | Algorithms, data representation, architecture and stack |
-| **2 Optimize** | Tune plus application algorithms, structures, layout, batching/concurrency | Language, framework, DB engine/schema/indexes, library feature architecture, transport/runtime/kernel and native dependencies |
-| **3 Rebuild** | Any justified architectural layer, including storage, transport, libraries or language | Required behavior, security, durability, compatibility and operational responsibilities |
+| **1 Tune** | Remove redundant work and copies. Reuse resources. Tune existing queries and pools. | Preserve algorithms, data representation, architecture and stack. |
+| **2 Optimize** | Use Tune techniques. Change application algorithms, data structures, layout, batching and concurrency. | Preserve language, framework, database engine, schema, indexes, library feature architecture, transport, runtime, kernel and native dependencies. |
+| **3 Rebuild** | Change any justified architectural layer, including storage, transport, libraries and language. | Preserve required behavior, security, durability, compatibility and operational responsibilities. |
 
-Mode 3 permits reversible local experiments. It does not independently authorize destructive migrations, live deployment or machine-wide changes. Replace a removed component's responsibilities. No mode requires a rewrite or permits weaker contracts.
+Mode 3 permits reversible local experiments. It does not inherit lower-mode architectural restrictions. It does not independently authorize destructive migrations, live deployment or machine-wide changes. When replacing a component, preserve its responsibilities. No mode permits weaker contracts.
 
 ## 1. Inspect
 
-Read applicable AGENTS.md, git status, manifests, hot paths, tests and previous performance records. Confirm the actual target; a reference repository is not the application. Identify workload, sizes/skew, resource limits and required semantics, including isolation, validation, ordering, freshness, acknowledged writes and proxy/TLS duties.
+Read applicable AGENTS.md. Inspect git status, manifests, hot paths, tests and previous performance records. Confirm the actual target. Do not treat a reference repository as the target. Identify the workload, data sizes, skew and resource limits. Identify required semantics, including isolation, validation, ordering, freshness, acknowledged writes and proxy or TLS responsibilities.
 
-## 2. Load the required guidance
+## 2. Read the required guidance
 
-Before planning edits, read [modes.md](references/modes.md): “Selecting a mode,” the selected mode's section, all explicitly inherited requirements, and “Validation ladder.” Read relevant [measurement](references/measurement.md) sections and [technique](references/technique-catalog.md) entries, including its project journal template. These readings are mandatory.
+Before planning edits, read [modes.md](references/modes.md): “Selecting a mode,” the selected mode's section, its explicitly inherited requirements, and “Validation ladder.” Read relevant sections of [measurement.md](references/measurement.md). Read relevant [technique entries](references/technique-catalog.md) and the project journal template. These readings are mandatory.
 
-Load matching [playbook](references/optimization-playbook.md) sections and [case studies](references/case-studies.md) when useful. For contest/latest work, read [challenge research](references/challenge-research.md), including refresh instructions; query only relevant [catalog](references/submission-catalog.json) entries. Keep historical, official, local and projected evidence separate.
+When useful, consult matching [playbook sections](references/optimization-playbook.md) and [case studies](references/case-studies.md). For contest work or requests for current information, read [challenge research](references/challenge-research.md) and its refresh instructions. Query only relevant [catalog entries](references/submission-catalog.json). Keep historical, official, local and projected evidence separate.
 
 ## 3. Establish evidence
 
-Run correctness checks and baseline load on disposable authorized data before edits. Profile the limiting resource; inspect query plans/counts where relevant. Record source/environment/dataset provenance and generator health. Freeze primary metric, minimum effect and provisional regression/resource budgets before candidate measurements; use actual product SLOs when available.
+Before edits, run correctness checks. Measure the baseline on disposable authorized data. Profile the limiting resource. Where relevant, inspect query plans and counts. Record source, environment and dataset provenance. Check generator health.
+
+Before candidate measurements, freeze the primary metric, minimum effect, regression budgets and resource budgets. Use actual product SLOs when available. Otherwise, label budgets provisional.
 
 ## 4. Experiment
 
-Rank evidence-backed hypotheses. Change one mechanism at a time within budget; preserve baseline and rollback. Include construction, updates, invalidation, memory and crossover costs. Report deeper opportunities without escalating. For Mode 3, write the architecture experiment brief required by modes.md before implementation. Screen quickly; retain supported winners and record rejected/inconclusive attempts.
+Rank hypotheses by evidence. Change one mechanism at a time within the selected mode. Preserve the baseline and rollback. Include construction, updates, invalidation, memory and crossover costs. Report deeper opportunities without escalating.
+
+Before Mode 3 implementation, write the architecture experiment brief required by modes.md. Use quick screening first. Retain supported winners. Record rejected and inconclusive attempts.
 
 ## 5. Validate
 
-Follow the changed layer's correctness, sustained and fault requirements. Require at least three interleaved baseline/candidate pairs in Modes 1/2, five in Mode 3, plus the mandatory holds/soak and representative regimes in the validation ladder. Short pairs do not replace sustained validation.
+Follow the changed layer's correctness, sustained and fault requirements. In Modes 1 and 2, run at least three interleaved baseline and candidate pairs. In Mode 3, run at least five pairs. Follow the mandatory holds, soak and representative workloads in the validation ladder. Short pairs do not replace sustained validation.
 
-Report every trial, paired effects/variation, resources and per-route outcomes. Never average percentiles, cherry-pick or hide rare-route failures. Incomplete performance evidence is UNVERIFIED. Never claim universal success or transfer another implementation's score to the target.
+Report every trial, paired effects, variation, resources and results for each route. Never average percentiles. Never cherry-pick trials. Never hide rare-route failures. Label incomplete performance evidence UNVERIFIED. Never claim universal success. Never transfer another implementation's score to the target.
 
 ## Deliver
 
-State mode/context, bottleneck, changes, checks/unrun checks, results/noise, tradeoffs, remaining limit and rollback. Record lessons in the project journal using the catalog template; never modify the installed skill during project runs.
+State the mode, context, bottleneck, changes, checks, unrun checks, results, uncertainty, tradeoffs, remaining limit and rollback. Record lessons in the project journal with the catalog template. During project runs, never modify the installed skill.
