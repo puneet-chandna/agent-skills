@@ -24,6 +24,8 @@ validation to fit the budget. Report timeouts and incomplete tasks.
 
 Stage with `python3 evals/prepare.py --condition A --scenario mode1 --out /tmp/trial`.
 This generates `task/` and `control/`; repeat with a new destination per trial.
+Use a full git checkout so the pinned baseline commit is available; CI fetches
+history for the same packaging checks.
 Only copy `task/` into `/workspace/task` in a new disposable VM/container with
 the selected CLI and Python already present. Copy `control/prompt.txt` to
 `/inputs/prompt.txt`. Copy `control/audit.py` to `/inputs/audit.py`.
