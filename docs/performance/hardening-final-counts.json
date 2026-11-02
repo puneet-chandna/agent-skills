@@ -1,0 +1,40 @@
+{
+  "count_method": "len(text.split()), whitespace-delimited; body split(---, 2)[2]",
+  "skill_words": 529,
+  "body_words": 476,
+  "description_characters": 374,
+  "references": {
+    "skills/optimize-server-performance/references/case-studies.md": {
+      "words": 2075,
+      "sha256": "a2f13cd3fe5c7ee31a0d75c6e663e8b5b6495f953738834d714780927e4579a5"
+    },
+    "skills/optimize-server-performance/references/challenge-research.md": {
+      "words": 1360,
+      "sha256": "bfd8c40db522bf1e51588924c49dbce67b049ede1016c3c3ce07861394a40d93"
+    },
+    "skills/optimize-server-performance/references/measurement.md": {
+      "words": 669,
+      "sha256": "6eb438e9d9c7752688006abf27789f335cdf982dcb0beb669eace0c0b9d69f74"
+    },
+    "skills/optimize-server-performance/references/modes.md": {
+      "words": 1408,
+      "sha256": "24ba56392af85aa0a61a4b34e549a92efb23694dbde0eee2f5a1b1252dd71e1e"
+    },
+    "skills/optimize-server-performance/references/optimization-playbook.md": {
+      "words": 1030,
+      "sha256": "e92bcd2f349e16c3b9cd17cd38f3588c4a70ba5ccaa44eecfe957df9fd8bdf5d"
+    },
+    "skills/optimize-server-performance/references/submission-catalog.json": {
+      "words": 5842,
+      "sha256": "0d320d4e9b3844f38403e2e092985411b2024e4b09b447f56f2aaab0cfbbbd10"
+    },
+    "skills/optimize-server-performance/references/technique-catalog.md": {
+      "words": 1851,
+      "sha256": "cc05b5ff02908b01c84a71f72e6f96fa7f46f57f017b89a176ec6d2a87ab83c6"
+    },
+    "skills/optimize-server-performance/references/upstream-license.txt": {
+      "words": 172,
+      "sha256": "1c809f52dd742570746a8ac00694ad4ddd9229e12accc7d5c598075861b478a0"
+    }
+  }
+}

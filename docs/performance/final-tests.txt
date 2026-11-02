@@ -1,0 +1,30 @@
+test_accounting_and_percentiles (test_benchmark.BenchmarkTests.test_accounting_and_percentiles) ... ok
+test_artifact_smoke_and_refuse_overwrite (test_benchmark.BenchmarkTests.test_artifact_smoke_and_refuse_overwrite) ... ok
+test_http_failures_are_saved_in_valid_artifact (test_benchmark.BenchmarkTests.test_http_failures_are_saved_in_valid_artifact) ... ok
+test_real_timeout_and_http_failure_accounting (test_benchmark.BenchmarkTests.test_real_timeout_and_http_failure_accounting) ... ok
+test_conditions_isolation_and_no_candidate_leak (test_evals.EvaluationPackagingTests.test_conditions_isolation_and_no_candidate_leak) ... ok
+test_agent_results_remain_blank (test_hardening.InstructionTests.test_agent_results_remain_blank) ... ok
+test_document_invariants (test_hardening.InstructionTests.test_document_invariants) ... ok
+test_editorial_budget_and_description (test_hardening.InstructionTests.test_editorial_budget_and_description) ... ok
+test_protected_and_historical_files_unchanged (test_hardening.InstructionTests.test_protected_and_historical_files_unchanged) ... ok
+test_readme_install_arguments_name_real_skills (test_hardening.InstructionTests.test_readme_install_arguments_name_real_skills) ... ok
+test_required_sections_and_reading (test_hardening.InstructionTests.test_required_sections_and_reading) ... ok
+test_failed_setup_lock_and_page_exhaustion_leave_no_partial_index (test_index.IndexTests.test_failed_setup_lock_and_page_exhaustion_leave_no_partial_index) ... ok
+test_indexed_reads_match_oracle_at_sizes_and_skew (test_index.IndexTests.test_indexed_reads_match_oracle_at_sizes_and_skew) ... ok
+test_setup_rollback_integrity_and_freshness (test_index.IndexTests.test_setup_rollback_integrity_and_freshness) ... ok
+test_custom_slos_are_enforced (test_package.K6SummaryTests.test_custom_slos_are_enforced) ... ok
+test_missing_file_is_unverified (test_package.K6SummaryTests.test_missing_file_is_unverified) ... ok
+test_missing_or_invalid_data_is_unverified (test_package.K6SummaryTests.test_missing_or_invalid_data_is_unverified) ... ok
+test_supported_summary_formats (test_package.K6SummaryTests.test_supported_summary_formats) ... ok
+test_tagged_write_failures_are_visible_not_hidden (test_package.K6SummaryTests.test_tagged_write_failures_are_visible_not_hidden) ... ok
+test_thresholds_are_exclusive (test_package.K6SummaryTests.test_thresholds_are_exclusive) ... ok
+test_relative_markdown_links_resolve (test_package.PackageTests.test_relative_markdown_links_resolve) ... ok
+test_skill_frontmatter_and_portable_layout (test_package.PackageTests.test_skill_frontmatter_and_portable_layout) ... ok
+test_svg_assets_and_readme_image_resolve (test_package.PackageTests.test_svg_assets_and_readme_image_resolve) ... ok
+test_golden_and_differential (test_slow_api.FixtureTests.test_golden_and_differential) ... ok
+test_http_contract_freshness_errors_and_concurrent_reads (test_slow_api.FixtureTests.test_http_contract_freshness_errors_and_concurrent_reads) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 3.323s
+
+OK

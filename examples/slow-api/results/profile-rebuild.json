@@ -1,0 +1,288 @@
+{
+  "implementation": "rebuild",
+  "rows": 12000,
+  "repeats": 100,
+  "seed": 17,
+  "dataset_sha256": "6c73ae94601b784eb993e66390ffe8b02feffdb4f7091f5f54b06adcb9cd149c",
+  "plan": [
+    [
+      7,
+      0,
+      0,
+      "SCAN items USING INDEX feed_order"
+    ]
+  ],
+  "prepare_seconds": 0.0031169879948720336,
+  "environment": {
+    "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+    "sqlite": "3.46.1",
+    "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-1235U",
+    "logical_cpus": 12,
+    "affinity_cpus": 12,
+    "cpu_quota": "unknown",
+    "memory_limit": "unknown",
+    "swap_limit": "unknown",
+    "memory_total": "MemTotal:       16088348 kB"
+  },
+  "provenance": {
+    "revision": "57e6af125c754c9b3f62c66f875396b20b0bfde4",
+    "dirty": "M evals/README.md\n?? evals/audit.py\n?? evals/prepare.py\n?? examples/\n?? tests/test_benchmark.py\n?? tests/test_evals.py\n?? tests/test_index.py\n?? tests/test_slow_api.py",
+    "sources": {
+      "app.py": "e458a4f7516adf664c3bb271d95435c4e0c8449dd16374a017fb84da2f8ee0e9",
+      "data.py": "668d99f544535e7d0bcaab63d89eb560de45a4e3e1bef7e711e7de64d200b9ff",
+      "bench.py": "33dc88430967319fdeb72dac419bf6e55936750015e7af9de544f3383678996a",
+      "optimize.py": "e0c2be6bee2ec99bb06ffaa0f66c9f593d062ef3eb19a56ce3fb87905dfa6447",
+      "baseline.py": "e9eb3c527c0b211c41fdfd499cdd57aa8b3c64432d2a3fa0723fa2d780c2ce7c",
+      "profile_app.py": "5e2414bb99b4be27d9e0cfa7f2f4bd44433119f48ca9c9c0fe6c46520bd1d3ce",
+      "rebuild.py": "f5703daeb4011481d950b989ee52748b373d347ca2ca114ebb87ace8463a8ef2",
+      "tune.py": "89a354d2178a29e4693eec4e6568d0fe9236739f4c89111ddf5f4254d6504448"
+    },
+    "protocol_sha256": "8272f11762fa88eb9964bf8442d74af3df4c269e5120a286e85b8132dae66bd3"
+  },
+  "explicit_statements_per_request": 3,
+  "statement_note": "BEGIN and two SELECTs plus implicit COMMIT; statement caching unchanged.",
+  "total_profile_seconds": 0.32309426500000005,
+  "functions": [
+    {
+      "file": "/home/puneet/codes/agent-skills/examples/slow-api/baseline.py",
+      "line": 5,
+      "function": "render",
+      "calls": 100,
+      "self_seconds": 0.000162095,
+      "cumulative_seconds": 0.231842971
+    },
+    {
+      "file": "/home/puneet/codes/agent-skills/examples/slow-api/data.py",
+      "line": 9,
+      "function": "encode",
+      "calls": 200,
+      "self_seconds": 0.00021066700000000002,
+      "cumulative_seconds": 0.13684274200000002
+    },
+    {
+      "file": "/usr/lib/python3.14/json/__init__.py",
+      "line": 185,
+      "function": "dumps",
+      "calls": 200,
+      "self_seconds": 0.000382764,
+      "cumulative_seconds": 0.122524424
+    },
+    {
+      "file": "/usr/lib/python3.14/json/encoder.py",
+      "line": 185,
+      "function": "encode",
+      "calls": 200,
+      "self_seconds": 0.000302526,
+      "cumulative_seconds": 0.122075916
+    },
+    {
+      "file": "/usr/lib/python3.14/json/encoder.py",
+      "line": 207,
+      "function": "iterencode",
+      "calls": 200,
+      "self_seconds": 0.121652853,
+      "cumulative_seconds": 0.121652853
+    },
+    {
+      "file": "/home/puneet/codes/agent-skills/examples/slow-api/data.py",
+      "line": 27,
+      "function": "payload",
+      "calls": 100,
+      "self_seconds": 0.09481705200000001,
+      "cumulative_seconds": 0.09481705200000001
+    },
+    {
+      "file": "/home/puneet/codes/agent-skills/examples/slow-api/app.py",
+      "line": 16,
+      "function": "read",
+      "calls": 100,
+      "self_seconds": 0.0051070690000000005,
+      "cumulative_seconds": 0.091237127
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+      "calls": 100,
+      "self_seconds": 0.076125495,
+      "cumulative_seconds": 0.076125495
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'encode' of 'str' objects>",
+      "calls": 200,
+      "self_seconds": 0.014107651,
+      "cumulative_seconds": 0.014107651
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+      "calls": 300,
+      "self_seconds": 0.004627077,
+      "cumulative_seconds": 0.004627077
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method _sqlite3.connect>",
+      "calls": 100,
+      "self_seconds": 0.0023032580000000003,
+      "cumulative_seconds": 0.0032515340000000004
+    },
+    {
+      "file": "/usr/lib/python3.14/contextlib.py",
+      "line": 363,
+      "function": "__exit__",
+      "calls": 100,
+      "self_seconds": 4.2271e-05,
+      "cumulative_seconds": 0.001880928
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'close' of 'sqlite3.Connection' objects>",
+      "calls": 100,
+      "self_seconds": 0.001838657,
+      "cumulative_seconds": 0.001838657
+    },
+    {
+      "file": "/usr/lib/python3.14/functools.py",
+      "line": 593,
+      "function": "decorating_function",
+      "calls": 100,
+      "self_seconds": 0.000146842,
+      "cumulative_seconds": 0.000778089
+    },
+    {
+      "file": "/usr/lib/python3.14/functools.py",
+      "line": 35,
+      "function": "update_wrapper",
+      "calls": 100,
+      "self_seconds": 0.00029996,
+      "cumulative_seconds": 0.000631247
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.getattr>",
+      "calls": 800,
+      "self_seconds": 0.000271876,
+      "cumulative_seconds": 0.000271876
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method '__exit__' of 'sqlite3.Connection' objects>",
+      "calls": 100,
+      "self_seconds": 0.00019906400000000002,
+      "cumulative_seconds": 0.00019906400000000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.isinstance>",
+      "calls": 500,
+      "self_seconds": 9.186800000000001e-05,
+      "cumulative_seconds": 9.186800000000001e-05
+    },
+    {
+      "file": "/usr/lib/python3.14/pathlib/__init__.py",
+      "line": 189,
+      "function": "__fspath__",
+      "calls": 100,
+      "self_seconds": 6.948200000000001e-05,
+      "cumulative_seconds": 8.625700000000001e-05
+    },
+    {
+      "file": "/usr/lib/python3.14/functools.py",
+      "line": 553,
+      "function": "lru_cache",
+      "calls": 100,
+      "self_seconds": 7.1091e-05,
+      "cumulative_seconds": 8.393e-05
+    },
+    {
+      "file": "/usr/lib/python3.14/json/encoder.py",
+      "line": 105,
+      "function": "__init__",
+      "calls": 200,
+      "self_seconds": 6.5744e-05,
+      "cumulative_seconds": 6.5744e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'join' of 'str' objects>",
+      "calls": 200,
+      "self_seconds": 4.1508e-05,
+      "cumulative_seconds": 4.1508e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.setattr>",
+      "calls": 200,
+      "self_seconds": 3.5625000000000005e-05,
+      "cumulative_seconds": 3.5625000000000005e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'update' of 'dict' objects>",
+      "calls": 100,
+      "self_seconds": 2.3786000000000002e-05,
+      "cumulative_seconds": 2.3786000000000002e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.len>",
+      "calls": 100,
+      "self_seconds": 2.1082000000000002e-05,
+      "cumulative_seconds": 2.1082000000000002e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method '__enter__' of 'sqlite3.Connection' objects>",
+      "calls": 100,
+      "self_seconds": 1.9901e-05,
+      "cumulative_seconds": 1.9901e-05
+    },
+    {
+      "file": "/usr/lib/python3.14/pathlib/__init__.py",
+      "line": 250,
+      "function": "__str__",
+      "calls": 100,
+      "self_seconds": 1.6775e-05,
+      "cumulative_seconds": 1.6775e-05
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'disable' of '_lsprof.Profiler' objects>",
+      "calls": 1,
+      "self_seconds": 1.4167e-05,
+      "cumulative_seconds": 1.4167e-05
+    },
+    {
+      "file": "/usr/lib/python3.14/contextlib.py",
+      "line": 359,
+      "function": "__init__",
+      "calls": 100,
+      "self_seconds": 1.3889e-05,
+      "cumulative_seconds": 1.3889e-05
+    },
+    {
+      "file": "/usr/lib/python3.14/contextlib.py",
+      "line": 361,
+      "function": "__enter__",
+      "calls": 100,
+      "self_seconds": 1.217e-05,
+      "cumulative_seconds": 1.217e-05
+    }
+  ]
+}

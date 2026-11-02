@@ -22,6 +22,8 @@ A repeatable workflow for profiling bottlenecks, improving implementations, and 
 
 The main skill stays short. Detailed techniques, experiments and failure cases live in references the agent opens when relevant.
 
+The challenge case studies primarily cover SQLite-backed services; the workflow also applies to other stacks using their own profiling and validation tools.
+
 ## Install
 
 Run inside the project where you want to use it:
@@ -78,6 +80,12 @@ The workflow draws on [The $12 Server Challenge](https://github.com/arjaythedev/
 | [Research snapshot](skills/optimize-server-performance/references/challenge-research.md) | Rules, recent submissions and provenance; checked 1 November 2026, with the upstream revision pinned |
 
 Official scores, local measurements and projections stay separate. Installation alone changes no application code; the agent applies the workflow when invoked.
+
+## Example
+
+The [stdlib HTTP/SQLite fixture](examples/slow-api/README.md) includes a [journal](examples/slow-api/journal.md) and [raw trials](examples/slow-api/results/). Local loopback tests on Python 3.14.4 / SQLite 3.46.1, an i5-1235U and seeded feed data left Tune and Optimize inconclusive; Rebuild's ordering index failed the workload matrix. The original is retained, with no accepted speedup. This synthetic example does not predict gains elsewhere.
+
+[Agent evaluation instructions](evals/README.md) prepare isolated no-skill/current/revised comparisons. These evaluations have not run; behavioral improvement remains unmeasured.
 
 ## Maintain and contribute
 
