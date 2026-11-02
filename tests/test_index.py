@@ -14,6 +14,16 @@ import rebuild
 
 
 class IndexTests(unittest.TestCase):
+    def test_indexed_reads_match_oracle_at_sizes_and_skew(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for size, skew in ((0, False), (16, False), (12000, False), (100000, True)):
+                path = Path(folder) / str(size)
+                data.seed(path, size, skew=skew)
+                expected = oracle(path, 1000)
+                rebuild.prepare(path)
+                import json
+                self.assertEqual(json.loads(rebuild.render(*app.read(path, 1000))[0]), expected)
+
     def test_setup_rollback_integrity_and_freshness(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'db'

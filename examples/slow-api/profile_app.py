@@ -2,7 +2,6 @@
 import argparse
 import cProfile
 from contextlib import closing
-import hashlib
 import importlib
 import json
 from pathlib import Path
@@ -29,12 +28,15 @@ if __name__ == '__main__':
     with tempfile.TemporaryDirectory() as folder:
         path = Path(folder) / 'db'
         checksum = data.seed(path, args.rows)
+        before_bytes = path.stat().st_size
         started = time.perf_counter()
         if hasattr(implementation, 'prepare'):
             implementation.prepare(path)
         startup = time.perf_counter() - started
         with closing(sqlite3.connect(path)) as db:
             plan = db.execute('EXPLAIN QUERY PLAN ' + app.QUERY, (1000,)).fetchall()
+            pragmas = {name: db.execute('PRAGMA ' + name).fetchone()[0]
+                       for name in ('journal_mode', 'synchronous', 'page_size', 'cache_size')}
         profile = cProfile.Profile()
         profile.enable()
         for _ in range(args.repeats):
@@ -43,7 +45,8 @@ if __name__ == '__main__':
         entries = pstats.Stats(profile).stats
         artifact = dict(implementation=args.implementation, rows=args.rows, repeats=args.repeats,
                         seed=17, dataset_sha256=checksum, plan=plan,
-                        prepare_seconds=startup, environment=bench.environment(),
+                        database_bytes_before=before_bytes, database_bytes_after=path.stat().st_size,
+                        pragmas=pragmas, prepare_seconds=startup, environment=bench.environment(),
                         provenance=bench.provenance(), explicit_statements_per_request=3,
                         statement_note='BEGIN and two SELECTs plus implicit COMMIT; statement caching unchanged.',
                         total_profile_seconds=sum(v[2] for v in entries.values()),

@@ -31,13 +31,14 @@ class BenchmarkTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / 'raw.json'
             command = [sys.executable, str(EXAMPLE / 'bench.py'), '--out', str(output),
-                       '--candidate', 'optimize', '--rows', '16', '--rounds', '1',
+                       '--candidate', 'optimize', '--rows', '16', '--rounds', '2',
                        '--duration', '.08', '--warmup', '.03', '--rate', '0',
                        '--concurrency', '1']
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr)
             artifact = json.loads(output.read_text())
-            self.assertEqual(len(artifact['trials']), 2)
+            self.assertEqual([t['variant'] for t in artifact['trials']],
+                             ['baseline', 'optimize', 'optimize', 'baseline'])
             self.assertTrue(artifact['provenance']['sources'])
             for trial in artifact['trials']:
                 summary = trial['summary']
@@ -50,6 +51,21 @@ class BenchmarkTests(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('refusing to overwrite', result.stderr)
+
+    def test_http_failures_are_saved_in_valid_artifact(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'failures.json'
+            result = subprocess.run([sys.executable, str(EXAMPLE / 'bench.py'),
+                '--out', str(output), '--candidate', 'baseline', '--single',
+                '--rounds', '1', '--rows', '0', '--duration', '.04', '--warmup', '.02',
+                '--path', '/missing', '--rate', '0', '--concurrency', '1'],
+                capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            trial = json.loads(output.read_text())['trials'][0]
+            self.assertGreater(trial['summary']['attempted'], 0)
+            self.assertEqual(trial['summary']['successful'], 0)
+            self.assertEqual(trial['summary']['error_rate'], 1)
+            self.assertTrue(all(s[2] == 404 for s in trial['samples']))
 
     def test_real_timeout_and_http_failure_accounting(self):
         class Handler(http.server.BaseHTTPRequestHandler):

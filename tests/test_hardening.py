@@ -1,11 +1,26 @@
 """Document regression checks, not agent behavioral evaluations."""
 import re
+import hashlib
+import json
 import unittest
 
 from test_package import ROOT, SKILL
 
 
 class InstructionTests(unittest.TestCase):
+    def test_protected_and_historical_files_unchanged(self):
+        baseline = json.loads((ROOT / 'docs/performance/hardening-baseline.json').read_text())
+        for name in ('upstream-license.txt', 'submission-catalog.json', 'case-studies.md',
+                     'technique-catalog.md', 'optimization-playbook.md'):
+            path = SKILL / 'references' / name
+            expected = baseline['references'][str(path.relative_to(ROOT))]['sha256']
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), expected)
+
+    def test_agent_results_remain_blank(self):
+        results = json.loads((ROOT / 'evals/results-template.json').read_text())
+        self.assertEqual(results['status'], 'NOT RUN')
+        self.assertEqual(results['trials'], [])
+
     def test_editorial_budget_and_description(self):
         text = (SKILL / 'SKILL.md').read_text()
         front, body = text.split('---', 2)[1:]

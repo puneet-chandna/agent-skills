@@ -99,6 +99,9 @@ class FixtureTests(unittest.TestCase):
                         with closing(sqlite3.connect(path)) as db, db:
                             db.execute('DROP TABLE selected')
                         self.assertEqual(request(), (503, {'error': 'database unavailable'}))
+                        with closing(sqlite3.connect(path)) as db, db:
+                            db.execute('CREATE TABLE selected(seq INTEGER PRIMARY KEY, item_id INTEGER)')
+                        self.assertEqual(request(), (200, oracle(path, 1000)))
                     finally:
                         server.shutdown()
                         thread.join()
