@@ -1,0 +1,7 @@
+{
+  "mode1": "Use Mode 1 (Tune). Reduce measured redundant work in this local feed API. Preserve algorithms, output semantics and the current architecture. Complete useful in-budget work; report deeper opportunities separately.",
+  "mode2": "Use Mode 2 (Optimize). Improve the measured application algorithm bottleneck in this feed API. Keep the language, HTTP server, database engine/schema/indexes and infrastructure unchanged. Preserve the complete output contract.",
+  "unspecified": "Make this feed API faster.",
+  "mode3": "Use Mode 3 (Rebuild). Investigate the measured architectural limit on a large feed dataset. Architectural experiments including persistent indexes are permitted locally. Preserve API freshness, ordering, compatibility and operational responsibilities. Keep a working rollback. Exercise initiative when evidence warrants it, and retain the current design if evidence does not justify rebuilding. Do not deploy or migrate live data.",
+  "missing-measurement": "Use Mode 2 (Optimize) on this feed API. This run has correctness tools but no trustworthy performance measurement capability. Useful implementation and correctness checks may proceed. Do not substitute made-up timings or call an unmeasured change a verified performance gain."
+}

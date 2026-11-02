@@ -1,0 +1,14 @@
+test_custom_slos_are_enforced (test_package.K6SummaryTests.test_custom_slos_are_enforced) ... ok
+test_missing_file_is_unverified (test_package.K6SummaryTests.test_missing_file_is_unverified) ... ok
+test_missing_or_invalid_data_is_unverified (test_package.K6SummaryTests.test_missing_or_invalid_data_is_unverified) ... ok
+test_supported_summary_formats (test_package.K6SummaryTests.test_supported_summary_formats) ... ok
+test_tagged_write_failures_are_visible_not_hidden (test_package.K6SummaryTests.test_tagged_write_failures_are_visible_not_hidden) ... ok
+test_thresholds_are_exclusive (test_package.K6SummaryTests.test_thresholds_are_exclusive) ... ok
+test_relative_markdown_links_resolve (test_package.PackageTests.test_relative_markdown_links_resolve) ... ok
+test_skill_frontmatter_and_portable_layout (test_package.PackageTests.test_skill_frontmatter_and_portable_layout) ... ok
+test_svg_assets_and_readme_image_resolve (test_package.PackageTests.test_svg_assets_and_readme_image_resolve) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.632s
+
+OK
