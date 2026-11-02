@@ -47,6 +47,10 @@ Exit 0 means transport gates pass; 1 means a gate fails; 2 means invalid/missing
 
 ## Required acceptance by changed behavior
 
+Read this section for the changed layer. Preserve API/security checks; record
+unrun checks and unsupported tooling. A test pass cannot prove absence of bugs.
+The helper above checks transport thresholds only, not this validation ladder.
+
 - API: fresh counts, order/ties, sparse rows, auth-first errors, Unicode/control escapes, required JWT expiry and exact contract.
 - DB: duplicate races, commit/busy/disk errors, rollback, no early success, restart/read-after-write; distinguish process crash from power loss.
 - Transport: fragmented input, partial sends, mixed pipelining/order, half-close, cancellation, slow clients, recycled slots and exhaustion.

@@ -70,6 +70,15 @@ Default order: profile existing stack; remove repeated DB/driver work; reduce qu
 
 ## Primary sources and refresh entry points
 
+### Refresh procedure (instruction clarification, not a new snapshot)
+
+For latest/contest work, refresh upstream rules, SPEC/schema/tests/load script,
+leaderboard and PRs sorted by both creation and update. Record retrieval time,
+main SHA, PR head, scored revision and status; inspect relevant source. Separate
+official scores, local experiments, unscored revisions and projections. If a
+refresh is unavailable, label this snapshot stale. Do not overwrite historical
+dates, scores or SHAs. Use the primary source entry points below.
+
 - Repository/rules: https://github.com/arjaythedev/twelve-dollar-server-challenge
 - Pinned board and per-entry notes: https://github.com/arjaythedev/twelve-dollar-server-challenge/blob/4d60dd808b54bcc326d6eb1fbfa9f713bf4983c0/LEADERBOARD.md
 - Pinned API: https://github.com/arjaythedev/twelve-dollar-server-challenge/blob/4d60dd808b54bcc326d6eb1fbfa9f713bf4983c0/SPEC.md
