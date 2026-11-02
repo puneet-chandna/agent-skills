@@ -45,6 +45,8 @@ class BenchmarkTests(unittest.TestCase):
                 self.assertGreater(summary['successful'], 0)
                 self.assertEqual(summary['attempted'], len(trial['samples']))
                 self.assertEqual(summary['error_rate'], 0)
+                self.assertIsNone(summary['server_peak_rss_bytes'])
+                self.assertEqual(summary['memory_gate'], 'UNVERIFIED')
                 recomputed = bench.summarize(trial['samples'], .08, summary['elapsed_seconds'])
                 for key in recomputed:
                     self.assertEqual(summary[key], recomputed[key])

@@ -47,17 +47,17 @@ def environment():
 
 
 def stats():
-    try:
-        import resource
-        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        rss *= 1 if sys.platform == 'darwin' else 1024
-    except (ImportError, AttributeError):
-        rss = None
+    started = time.perf_counter()
+    rollup = text_file('/proc/self/smaps_rollup') if sys.platform == 'linux' else ''
+    current = next((int(line.split()[1]) * 1024 for line in rollup.splitlines()
+                    if line.startswith('Rss:')), None)
     status = text_file('/proc/self/status')
-    current = next((int(line.split()[1]) * 1024 for line in status.splitlines()
-                    if line.startswith('VmRSS:')), None)
-    return {'cpu_seconds': time.process_time(), 'peak_rss_bytes': rss,
-            'current_rss_bytes': current, 'active_threads': threading.active_count()}
+    kernel_high_water = next((int(line.split()[1]) * 1024 for line in status.splitlines()
+                              if line.startswith('VmHWM:')), None)
+    return {'cpu_seconds': time.process_time(), 'peak_rss_bytes': None,
+            'current_rss_bytes': current, 'kernel_vm_hwm_bytes': kernel_high_water,
+            'memory_sample_seconds': time.perf_counter() - started,
+            'active_threads': threading.active_count()}
 
 
 def serve(pipe, path, variant):
@@ -70,6 +70,7 @@ def serve(pipe, path, variant):
             pipe.send({'port': server.server_port,
                        'startup_seconds': time.perf_counter() - started,
                        'prepare_seconds': server.prepare_seconds,
+                       'memory': stats(),
                        'database_bytes': Path(path).stat().st_size})
             try:
                 while pipe.recv() == 'stats':
@@ -210,9 +211,16 @@ def trial(args, variant):
             after = parent.recv()
             cpu = after['cpu_seconds'] - before['cpu_seconds']
             successful = measured['summary']['successful']
+            snapshots = [startup['memory'], before, *resource_samples, after]
+            rss_samples = [s['current_rss_bytes'] for s in snapshots
+                           if s['current_rss_bytes'] is not None]
             measured['summary'].update(server_cpu_seconds=cpu,
                 server_cpu_ms_per_success=1000 * cpu / successful if successful else None,
-                server_peak_rss_bytes=after['peak_rss_bytes'])
+                server_peak_rss_bytes=None,
+                server_sampled_peak_rss_bytes=max(rss_samples) if rss_samples else None,
+                memory_gate='UNVERIFIED',
+                memory_samples=len(rss_samples),
+                memory_sampling_seconds=sum(s['memory_sample_seconds'] for s in snapshots))
             return dict(variant=variant, timestamp=datetime.now(timezone.utc).isoformat(),
                         dataset_sha256=checksum, startup=startup,
                         resource_samples=resource_samples,
@@ -238,6 +246,7 @@ def provenance():
         except (OSError, subprocess.CalledProcessError):
             return 'unknown'
     return dict(revision=git('rev-parse', 'HEAD'), dirty=git('status', '--porcelain=v1'),
+                source_status=git('status', '--porcelain=v1', '--', '*.py', 'protocol.json'),
                 sources={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                          for p in HERE.glob('*.py')},
                 protocol_sha256=hashlib.sha256((HERE / 'protocol.json').read_bytes()).hexdigest())
@@ -268,7 +277,7 @@ def main():
     if args.out.exists():
         parser.error('refusing to overwrite an existing artifact')
     args.path = args.path or f'/feed?limit={args.limit}'
-    artifact = dict(schema_version=1, command=[sys.executable, *sys.argv],
+    artifact = dict(schema_version=2, command=[sys.executable, *sys.argv],
         timestamp=datetime.now(timezone.utc).isoformat(), environment=environment(),
         provenance=provenance(), config={k: str(v) if isinstance(v, Path) else v
                                         for k, v in vars(args).items()},
@@ -280,8 +289,14 @@ def main():
         timing='samples=[start_offset_us, elapsed_us, outcome]; 200 means matching body checksum. '
                'Nearest-rank percentiles over successful requests only, errors retained separately. '
                'Throughput uses admission plus drain elapsed. Latencies include full body read/hash.',
+        memory_method='Linux smaps_rollup Rss: server-owned snapshots after startup, after warmup, '
+                      'every 10 seconds of measurement, and after drain. Sampled maximum is a lower '
+                      'bound; startup/warmup transients and between-sample peaks can be missed. '
+                      'VmHWM is an approximate kernel diagnostic only. True peak and its acceptance '
+                      'gate are UNVERIFIED. Unsupported or unreadable procfs returns null. '
+                      'Sampling cost is recorded; periodic sampling CPU is not subtracted.',
         limitations=['Generator and server share host resources; CPU quota isolation unavailable.',
-                     'RSS is process lifetime high water, not kernel/socket/page cache or a memory leak test.',
+                     'No reliable true peak RSS: sampled RSS cannot certify the frozen memory gate.',
                      'Warmup and measured samples retained, but only measured samples enter summaries.',
                      'Expected body comes from baseline; independent contract tests must also pass.'],
         trials=[])
