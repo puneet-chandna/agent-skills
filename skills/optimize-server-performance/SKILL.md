@@ -1,66 +1,48 @@
 ---
 name: optimize-server-performance
-description: Improve backend, HTTP server, database, and networking performance through profiling, controlled experiments, and correctness checks. Use for slow APIs, high p95/p99, low throughput, excessive CPU/memory, SQLite/WAL contention, many connections, algorithm/data-structure bottlenecks, or $12 Server Challenge submissions. Select Mode 1 Tune for small fixes, Mode 2 Optimize for application algorithms/data structures, or Mode 3 Rebuild for architectural experiments with strict verification. Default to Mode 1.
+description: Profile and improve backend, HTTP server, database, networking and application algorithm performance through controlled experiments and correctness checks. Use for slow APIs, high p95/p99, low throughput, excessive CPU/memory, SQLite/WAL contention, many connections or $12 Server Challenge submissions. Supports Tune, Optimize and Rebuild change budgets. Default to Mode 1.
 ---
 
 # Optimize Server Performance
 
-Deliver measured improvements. Preserve required behavior, security, durability and operations. Another implementation's score supplies hypotheses, not a promised multiplier.
+For unspecified requests, default to Mode 1. This includes “make it faster.” State the selected mode. State whether the context is production or a challenge. Never silently escalate, including subtasks. A mode is a ceiling, not a rewrite requirement. Narrower user constraints prevail.
 
-## Select the change budget
-
-Accept `mode 1`/`Tune`, `mode 2`/`Optimize`, and `mode 3`/`Rebuild`, case-insensitively. Default to 1. An explicit all-out architectural request selects 3; a bare “make it faster” does not. State the mode/boundaries once, then execute authorized work without reconfirming routine edits.
-
-| Mode | Allowed changes | Boundary |
+| Mode | Permitted changes | Required boundaries |
 |---|---|---|
-| **1 — Tune** | Small bottleneck fixes, redundant work/copy removal, reuse, existing query/pool/worker/buffer tuning | Keep algorithms, data representation, feature architecture and stack |
-| **2 — Optimize** | Tune + application algorithms/data structures, eliminate brute force, layout/pipeline refactors, supported-API batching/concurrency | Keep language, DB engine/schema/indexes, framework, library feature architecture, transport/runtime/kernel and native dependencies |
-| **3 — Rebuild** | All layers available: feature/library rebuilds, dependencies/frameworks, native/SIMD, io_uring/kernel-facing code, storage/schema/DB engine, language/runtime | Preserve required contracts; pass strict validation |
+| **1 Tune** | Remove redundant work and copies. Reuse resources. Tune existing queries and pools. | Preserve algorithms, data representation, architecture and stack. |
+| **2 Optimize** | Use Tune techniques. Change application algorithms, data structures, layout, batching and concurrency. | Preserve language, framework, database engine, schema, indexes, library feature architecture, transport, runtime, kernel and native dependencies. |
+| **3 Rebuild** | Change any justified architectural layer, including storage, transport, libraries and language. | Preserve required behavior, security, durability, compatibility and operational responsibilities. |
 
-Read [modes.md](references/modes.md) for precise boundaries/examples and the validation ladder. A mode is a ceiling, not a rewrite quota. Never auto-escalate, including in subtasks. Complete useful in-budget work and identify higher-mode experiments when needed. Narrower user constraints prevail. Mode 3 authorizes reversible local architectural experiments, not destructive migrations, live deployment or machine-wide kernel changes.
+Mode 3 permits reversible local experiments. It does not inherit lower-mode architectural restrictions. It does not independently authorize destructive migrations, live deployment or machine-wide changes. When replacing a component, preserve its responsibilities. No mode permits weaker contracts.
 
-Keep **production/challenge context** separate from the numbered mode. Production uses product requirements/SLOs. Even Mode 3 must obey contest rules when entering the contest.
+## 1. Inspect
 
-## 1. Inspect the actual project
+Read applicable AGENTS.md. Inspect git status, manifests, hot paths, tests and previous performance records. Confirm the actual target. Do not treat a reference repository as the target. Identify the workload, data sizes, skew and resource limits. Identify required semantics, including isolation, validation, ordering, freshness, acknowledged writes and proxy or TLS responsibilities.
 
-Read applicable AGENTS.md, git status, manifests, hot paths, deployment, tests and existing performance records. Never mistake a downloaded reference repo for the target. If the target is missing, prepare analysis and request its path/URL without claiming improvements.
+## 2. Read the required guidance
 
-Record bottleneck candidates, traffic/access patterns, data sizes/skew, concurrency, hardware/resource budget and required semantics. Preserve auth/tenant isolation, input validation, parameterization, ordering/idempotency, transaction isolation, acknowledged-write durability, TLS/proxy responsibilities and observability. Do not make less-correct work look faster.
+Before planning edits, read [modes.md](references/modes.md): “Selecting a mode,” the selected mode's section, its explicitly inherited requirements, and “Validation ladder.” Read relevant sections of [measurement.md](references/measurement.md). Read relevant [technique entries](references/technique-catalog.md) and the project journal template. These readings are mandatory.
 
-## 2. Load only relevant references
+When useful, consult matching [playbook sections](references/optimization-playbook.md) and [case studies](references/case-studies.md). For contest work or requests for current information, read [challenge research](references/challenge-research.md) and its refresh instructions. Query only relevant [catalog entries](references/submission-catalog.json). Keep historical, official, local and projected evidence separate.
 
-- Start with the selected [mode](references/modes.md), relevant [playbook section](references/optimization-playbook.md), and [measurement protocol](references/measurement.md).
-- Consult matching [technique entries](references/technique-catalog.md) to choose experiments. Open [case studies](references/case-studies.md) for relevant Lean/Rust/assembly/other rationale, outcomes, pros/cons and rejected attempts.
-- Use [challenge research](references/challenge-research.md) for rules/freshness/latest PRs. Query [submission catalog](references/submission-catalog.json) for specific entries; don't load all 157 rows by default.
+## 3. Establish evidence
 
-For “latest”/contest work, refresh upstream rules, SPEC/schema/tests/load script, leaderboard, PRs by creation **and update**, and relevant rulings. Record retrieval time/main SHA, PR head, scored revision and status. Inspect relevant source. Separate official scores, local experiments, unscored revisions and projections; label a stale snapshot when refresh is unavailable.
+Before edits, run correctness checks. Measure the baseline on disposable authorized data. Profile the limiting resource. Where relevant, inspect query plans and counts. Record source, environment and dataset provenance. Check generator health.
 
-## 3. Establish the baseline and limiting resource
+Before candidate measurements, freeze the primary metric, minimum effect, regression budgets and resource budgets. Use actual product SLOs when available. Otherwise, label budgets provisional.
 
-Run relevant correctness checks and smoke load on disposable local/staging data. Match release build, dataset, protocol/TLS/proxy, load model, CPU/RAM and connection reuse. Keep generator CPU outside the server quota; don't stress a public endpoint merely because its URL appears in config.
+## 4. Experiment
 
-Measure per-route throughput/latency/errors and committed outcomes, CPU/request, allocations, queues/fds/connections, cgroup memory and relevant DB/WAL/lock/I/O counters. Profile actual CPU, off-CPU waits, query plans/counts or event-loop lag. Distinguish RSS from kernel/socket/page-cache memory and app limits from generator CPU/ports/NIC/dropped work.
+Rank hypotheses by evidence. Change one mechanism at a time within the selected mode. Preserve the baseline and rollback. Include construction, updates, invalidation, memory and crossover costs. Report deeper opportunities without escalating.
 
-## 4. Run controlled, in-budget experiments
+Before Mode 3 implementation, write the architecture experiment brief required by modes.md. Use quick screening first. Retain supported winners. Record rejected and inconclusive attempts.
 
-Rank at most five hypotheses by evidence, impact, effort and risk. Change one mechanism at a time; preserve a baseline and rollback. In Modes 2/3 compare algorithm complexity, data access/locality, construction/update/invalidation cost, memory and crossover sizes. A hash map, lock-free design or better Big-O is not automatically faster.
+## 5. Validate
 
-Use the playbook/catalog to select the smallest justified intervention. Existing resource reuse may fit 1; new application structures/batching fit 2; custom HTTP/crypto, DB internals/plugins, new native/SIMD, io_uring/runtime/kernel, toolchain/PGO or stack replacement require 3. In Mode 3 pursue a profiled architectural bottleneck directly; don't require a cosmetic tuning phase first.
+Follow the changed layer's correctness, sustained and fault requirements. In Modes 1 and 2, run at least three interleaved baseline and candidate pairs. In Mode 3, run at least five pairs. Follow the mandatory holds, soak and representative workloads in the validation ladder. Short pairs do not replace sustained validation.
 
-Map techniques to the project: an HTTP client needs pooling/streaming/cancellation/TLS work, not a transplanted SQLite server. PostgreSQL/MySQL need their own tools, not SQLite pragmas. Retain general oracles/fallbacks for specialized plans and test preconditions instead of assuming seed properties. Contest WAL/NORMAL does not guarantee every commit survives power loss; preserve the production durability contract.
-
-## 5. Prove the result
-
-Follow modes.md: at least three matched interleaved pairs in 1/2, five in 3; relevant size/skew regimes, sustained holds/soak and fault tests according to the changed layer. Screen quickly first; apply expensive validation to finalists. Stateless Mode 1/2 microbenchmarks need adequate repeated samples, not artificial server holds.
-
-Use differential/property tests for changed algorithms; commit/rollback/race/restart tests for writes; fragmentation, partial sends, pipeline order, cancellation, ownership/stale completion and exhaustion tests for transports. Preserve API/security checks. Record unrun tests; tooling cannot prove an absence of bugs.
-
-Report all trials, paired effects/variation, per-route writes/errors and resource/tail tradeoffs. Never average percentiles, cherry-pick, equate VUs with req/s, or extrapolate local ratios into official capacity. Search/confirm capacity separately from same-load improvements. An aggregate error allowance must not hide a failing rare endpoint.
-
-`scripts/check_k6_summary.py SUMMARY.json` checks common k6 summary formats against transport gates only; missing data is UNVERIFIED. It does not validate semantics, duration, resources or official capacity. Use product thresholds and the full measurement protocol.
-
-Revert losers; retain the smallest supported winner and reproducible commands/artifacts. Append meaningful wins, rejections and inconclusive results to the project technique journal using the catalog template; read it on future runs. Never claim universal success or silently mutate the installed skill during a project run.
+Report every trial, paired effects, variation, resources and results for each route. Never average percentiles. Never cherry-pick trials. Never hide rare-route failures. Label incomplete performance evidence UNVERIFIED. Never claim universal success. Never transfer another implementation's score to the target.
 
 ## Deliver
 
-State mode/context, bottleneck/evidence, changed files/reason, matched baseline/candidate results and noise, checks/unrun checks, tradeoffs, remaining limit and rollback. When measurements are incomplete, label performance UNVERIFIED instead of lowering the acceptance bar. Creating a skill alone does not improve a repo.
+State the mode, context, bottleneck, changes, checks, unrun checks, results, uncertainty, tradeoffs, remaining limit and rollback. Record lessons in the project journal with the catalog template. During project runs, never modify the installed skill.

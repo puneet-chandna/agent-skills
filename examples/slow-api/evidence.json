@@ -1,0 +1,164 @@
+{
+  "availability": "local_unpublished",
+  "archive": {
+    "file": "agent-skills-evidence-2026-11-03.tar.gz",
+    "sha256": "bd489c0c130b07c785b6bfab35604fdb56d1c2be0fac363b8cfdfe109387c07f",
+    "manifest_sha256": "afdfdb5b2d08639c895f68ee2e06a38d2908695e7397c1791369474db54dbec6",
+    "files": 61
+  },
+  "source_revision": "b8401e11a4640a238f373eedd38a3ef1be29c95b",
+  "dirty_state": "",
+  "source_status": "",
+  "source_sha256": {
+    "app.py": "e458a4f7516adf664c3bb271d95435c4e0c8449dd16374a017fb84da2f8ee0e9",
+    "data.py": "668d99f544535e7d0bcaab63d89eb560de45a4e3e1bef7e711e7de64d200b9ff",
+    "bench.py": "9a2ef08235b9160efe4e59fb5ba42cfe9ea7fb6f81e7598a9cefa012aab0f217",
+    "optimize.py": "e0c2be6bee2ec99bb06ffaa0f66c9f593d062ef3eb19a56ce3fb87905dfa6447",
+    "baseline.py": "e9eb3c527c0b211c41fdfd499cdd57aa8b3c64432d2a3fa0723fa2d780c2ce7c",
+    "profile_app.py": "6d9582f3402c3d6e6dc1f4ef9e61960bb0d3508b4f1019dcae03a518b5605dcc",
+    "rebuild.py": "f5703daeb4011481d950b989ee52748b373d347ca2ca114ebb87ace8463a8ef2",
+    "tune.py": "89a354d2178a29e4693eec4e6568d0fe9236739f4c89111ddf5f4254d6504448"
+  },
+  "protocol_sha256": "8272f11762fa88eb9964bf8442d74af3df4c269e5120a286e85b8132dae66bd3",
+  "dataset": {
+    "rows": 12000,
+    "limit": 1000,
+    "seed": 17,
+    "skew": false,
+    "sha256": "6c73ae94601b784eb993e66390ffe8b02feffdb4f7091f5f54b06adcb9cd149c"
+  },
+  "environment": {
+    "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+    "sqlite": "3.46.1",
+    "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-1235U",
+    "logical_cpus": 12,
+    "affinity_cpus": 12,
+    "cpu_quota": "unknown",
+    "memory_limit": "unknown",
+    "swap_limit": "unknown",
+    "memory_total": "MemTotal:       16088348 kB"
+  },
+  "source_snapshots": [
+    "source-7a37cad.tar.gz",
+    "replacement/source-b8401e1.tar.gz"
+  ],
+  "artifacts": [
+    {
+      "file": "replacement/mode1.json",
+      "sha256": "674f573fbde4a7a4761bef2fe376131f321be269018b053530990ff7172a924e",
+      "bytes": 28045,
+      "command": [
+        "/usr/bin/python3",
+        "/home/puneet/codes/agent-skills/examples/slow-api/bench.py",
+        "--baseline",
+        "baseline",
+        "--candidate",
+        "tune",
+        "--out",
+        "/home/puneet/codes/agent-skills-evidence/2026-11-03-review/replacement/mode1.json"
+      ],
+      "configuration": {
+        "candidate": "tune",
+        "rounds": 3,
+        "duration": 2,
+        "warmup": 0.5,
+        "concurrency": 2,
+        "rate": 40
+      },
+      "measured_requests": 480,
+      "memory_gate": "UNVERIFIED"
+    },
+    {
+      "file": "replacement/mode2.json",
+      "sha256": "b47d861b866bbcd478780125ab0b9f5d2f81130945a8c7d9a0329a04391119bd",
+      "bytes": 28064,
+      "command": [
+        "/usr/bin/python3",
+        "/home/puneet/codes/agent-skills/examples/slow-api/bench.py",
+        "--baseline",
+        "baseline",
+        "--candidate",
+        "optimize",
+        "--out",
+        "/home/puneet/codes/agent-skills-evidence/2026-11-03-review/replacement/mode2.json"
+      ],
+      "configuration": {
+        "candidate": "optimize",
+        "rounds": 3,
+        "duration": 2,
+        "warmup": 0.5,
+        "concurrency": 2,
+        "rate": 40
+      },
+      "measured_requests": 480,
+      "memory_gate": "UNVERIFIED"
+    },
+    {
+      "file": "replacement/mode3-pressure.json",
+      "sha256": "5073f7ac03e5cce4723094fcdbee93f5cacc26c7be2d4548b86cc0837ff5da70",
+      "bytes": 69971,
+      "command": [
+        "/usr/bin/python3",
+        "/home/puneet/codes/agent-skills/examples/slow-api/bench.py",
+        "--baseline",
+        "baseline",
+        "--candidate",
+        "rebuild",
+        "--rounds",
+        "5",
+        "--concurrency",
+        "4",
+        "--rate",
+        "0",
+        "--out",
+        "/home/puneet/codes/agent-skills-evidence/2026-11-03-review/replacement/mode3-pressure.json"
+      ],
+      "configuration": {
+        "candidate": "rebuild",
+        "rounds": 5,
+        "duration": 2,
+        "warmup": 0.5,
+        "concurrency": 4,
+        "rate": 0.0
+      },
+      "measured_requests": 1830,
+      "memory_gate": "UNVERIFIED"
+    },
+    {
+      "file": "replacement/mode3-target.json",
+      "sha256": "970b1c6740bf3696a0897d228e3866b0561c92f401428c1104078e19c3973955",
+      "bytes": 43771,
+      "command": [
+        "/usr/bin/python3",
+        "/home/puneet/codes/agent-skills/examples/slow-api/bench.py",
+        "--baseline",
+        "baseline",
+        "--candidate",
+        "rebuild",
+        "--rounds",
+        "5",
+        "--out",
+        "/home/puneet/codes/agent-skills-evidence/2026-11-03-review/replacement/mode3-target.json"
+      ],
+      "configuration": {
+        "candidate": "rebuild",
+        "rounds": 5,
+        "duration": 2,
+        "warmup": 0.5,
+        "concurrency": 2,
+        "rate": 40
+      },
+      "measured_requests": 800,
+      "memory_gate": "UNVERIFIED"
+    }
+  ],
+  "limitations": [
+    "The archive is local and unpublished; no public raw-evidence URL exists.",
+    "Historical ru_maxrss fields and memory-gate conclusions are unreliable.",
+    "Early draft app.py/bench.py hashes have no committed source snapshot; see review/historical-source-audit.json.",
+    "Replacement source bytes are included and verified against artifact hashes.",
+    "Sampled RSS is a lower bound, not a true peak. Memory acceptance is UNVERIFIED.",
+    "Agent evaluations and authenticated CLI execution paths have not run."
+  ]
+}

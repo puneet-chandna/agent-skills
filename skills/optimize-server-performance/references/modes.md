@@ -23,6 +23,9 @@ Example: reuse an existing prepared lookup and remove a duplicate serialization.
 
 Goal: optimize how the application computes and organizes data without rebuilding its infrastructure.
 
+Inherit Mode 1's semantic, freshness, ownership and security requirements, but
+replace its algorithm/data-representation ceiling with this section's budget.
+
 Allow Mode 1 plus algorithms, data structures, internal application modules, contiguous/hot-cold layouts, bounded work queues, supported-API batching and application-level concurrency. Compare complexity, constants, working-set size, skew, mutation/read ratio and invalidation cost. Choose a structure for the workload, not for theoretical elegance.
 
 Examples: repeated linear membership to a request-local set; all-pairs join to a hash or sort/merge join; full sort to bounded top-k; FIFO array shifts to a deque; overlapping interval scans to an appropriate sorted/indexed representation. A new application representation may require construction/memory/invalidation work that belongs in the benchmark. Keep output ordering, duplicates, ties, Unicode, adversarial input and error behavior.
@@ -36,6 +39,9 @@ Example: improve candidate deduplication with an order-preserving hash set and b
 ## Mode 3 — Rebuild
 
 Goal: maximize performance under the real resource budget and product contract, with every architectural layer available for experiments.
+
+Inherit Modes 1/2's correctness and evidence requirements, not their architectural
+ceilings. Read those requirements as well as this section and the validation ladder.
 
 Allow application/library feature rebuilds, framework/dependency replacement or forks, new native/FFI/SIMD paths, language/runtime changes, io_uring/kernel-facing implementation, database engine/schema/index redesign and deployment architecture alternatives. The mode authorizes reversible implementation and experiments in isolated branches/worktrees; do not reconfirm routine architectural edits already inside this scope. It does not authorize destructive data migration, changes to a live kernel or production deployment merely to obtain a benchmark.
 
